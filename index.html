@@ -51,6 +51,9 @@
         --color-status-overdue-bg: #fee2e2;
         --color-status-today-text: #c2410c;
         --color-status-today-bg: #ffedd5;
+
+        --color-gcal-blue: #1a73e8;
+        --color-gcal-hover: #1557b0;
         
         --radius-sm: 6px;
         --radius-md: 10px;
@@ -520,12 +523,42 @@
         box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
       }
 
+      /* Google 캘린더 상단 연동 안내 카드 */
+      .gcal-info-banner {
+        background-color: #f8fafc;
+        border: 1px solid #e2e8f0;
+        border-radius: var(--radius-md);
+        padding: 12px 14px;
+        font-size: 0.8rem;
+        color: var(--color-text-sub);
+        display: flex;
+        align-items: flex-start;
+        gap: 10px;
+        line-height: 1.5;
+      }
+
+      .gcal-info-icon {
+        color: var(--color-gcal-blue);
+        flex-shrink: 0;
+        margin-top: 1px;
+      }
+
+      .gcal-info-content strong {
+        color: var(--color-text-main);
+      }
+
+      .gcal-info-content p {
+        margin-top: 2px;
+        color: var(--color-text-muted);
+        font-size: 0.775rem;
+      }
+
       /* 목록 리스트 */
       .todo-list {
         list-style: none;
         display: flex;
         flex-direction: column;
-        gap: 10px;
+        gap: 12px;
       }
 
       /* 개별 업무 항목 카드 */
@@ -535,8 +568,8 @@
         border-radius: var(--radius-md);
         padding: 14px 16px;
         display: flex;
-        align-items: center;
-        gap: 14px;
+        flex-direction: column;
+        gap: 10px;
         transition: all 0.15s ease;
       }
 
@@ -550,6 +583,14 @@
         border-color: #e2e8f0;
       }
 
+      /* 업무 항목 메인 행 (체크박스, 내용, 삭제버튼) */
+      .todo-main-row {
+        display: flex;
+        align-items: flex-start;
+        gap: 12px;
+        width: 100%;
+      }
+
       /* 커스텀 체크박스 */
       .checkbox-wrapper {
         position: relative;
@@ -557,6 +598,7 @@
         align-items: center;
         justify-content: center;
         flex-shrink: 0;
+        margin-top: 2px;
       }
 
       .todo-checkbox {
@@ -705,7 +747,7 @@
         background: transparent;
         border: 1px solid transparent;
         border-radius: var(--radius-sm);
-        padding: 8px;
+        padding: 6px;
         color: #94a3b8;
         cursor: pointer;
         display: flex;
@@ -719,6 +761,87 @@
         color: #dc2626;
         background-color: #fee2e2;
         border-color: #fca5a5;
+      }
+
+      /* Google 캘린더 연동 영역 */
+      .gcal-section {
+        border-top: 1px dashed var(--color-border);
+        padding-top: 10px;
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+      }
+
+      .gcal-btn-row {
+        display: flex;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 8px;
+      }
+
+      .btn-gcal {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 6px 12px;
+        border-radius: var(--radius-sm);
+        font-size: 0.8rem;
+        font-weight: 600;
+        text-decoration: none;
+        transition: all 0.15s ease;
+        border: 1.5px solid transparent;
+        user-select: none;
+      }
+
+      /* 마감일이 있는 활성 버튼 */
+      .btn-gcal.active {
+        background-color: #ffffff;
+        color: var(--color-gcal-blue);
+        border-color: #bfdbfe;
+        cursor: pointer;
+      }
+
+      .btn-gcal.active:hover {
+        background-color: #eff6ff;
+        border-color: var(--color-gcal-blue);
+        color: var(--color-gcal-hover);
+        box-shadow: 0 1px 3px rgba(26, 115, 232, 0.18);
+      }
+
+      /* 마감일이 없는 비활성 버튼 */
+      .btn-gcal.disabled {
+        background-color: #f1f5f9;
+        color: #94a3b8;
+        border-color: #e2e8f0;
+        cursor: not-allowed;
+      }
+
+      .gcal-btn-notice {
+        font-size: 0.75rem;
+        color: #b91c1c;
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        font-weight: 500;
+      }
+
+      /* Google 캘린더 세부 안내문 */
+      .gcal-notice-text {
+        font-size: 0.735rem;
+        color: var(--color-text-muted);
+        line-height: 1.45;
+        display: flex;
+        flex-direction: column;
+        gap: 2px;
+      }
+
+      .gcal-notice-text .gcal-transfer-info {
+        color: #2563eb;
+        font-weight: 500;
+      }
+
+      .gcal-notice-text .gcal-sync-warning {
+        color: var(--color-text-sub);
       }
 
       /* 빈 목록 상태 (Empty State) */
@@ -821,6 +944,16 @@
         .todo-item {
           padding: 12px;
           gap: 10px;
+        }
+
+        .gcal-btn-row {
+          flex-direction: column;
+          align-items: flex-start;
+        }
+
+        .btn-gcal {
+          width: 100%;
+          justify-content: center;
         }
       }
     </style>
@@ -989,6 +1122,22 @@
           </div>
         </div>
 
+        <!-- Google 캘린더 연동 상단 안내 -->
+        <div class="gcal-info-banner" role="note">
+          <svg class="gcal-info-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+            <line x1="16" y1="2" x2="16" y2="6"></line>
+            <line x1="8" y1="2" x2="8" y2="6"></line>
+            <line x1="3" y1="10" x2="21" y2="10"></line>
+            <line x1="12" y1="14" x2="12" y2="18"></line>
+            <line x1="10" y1="16" x2="14" y2="16"></line>
+          </svg>
+          <div class="gcal-info-content">
+            <strong>Google 캘린더 연동 안내</strong>
+            <p>마감일이 설정된 업무는 <strong>‘Google 캘린더에 추가’</strong> 버튼을 통해 새 탭에서 종일 일정으로 바로 등록할 수 있습니다. (제목 및 우선순위 자동 채움)</p>
+          </div>
+        </div>
+
         <!-- 업무 리스트 컨테이너 -->
         <ul id="todoList" class="todo-list" aria-label="등록된 업무 목록">
           <!-- 스크립트로 렌더링 -->
@@ -1017,10 +1166,10 @@
       (function () {
         'use strict';
 
-        // 스토리지 키
+        // 스토리지 키 (기존 데이터 유지)
         const STORAGE_KEY = 'my_work_planner_tasks_v1';
 
-        // 상태 데이터 (초기 상태는 빈 목록)
+        // 상태 데이터 (기존 업무 및 완료 상태 복원)
         let tasks = [];
         let currentFilter = 'all';
 
@@ -1077,13 +1226,11 @@
           try {
             const raw = localStorage.getItem(STORAGE_KEY);
             if (!raw) {
-              // 처음에는 빈 목록으로 시작 (샘플 데이터 추가하지 않음)
               tasks = [];
               return;
             }
             const parsed = JSON.parse(raw);
             if (Array.isArray(parsed)) {
-              // 데이터 구조 정규화
               tasks = parsed.filter(item => item && typeof item === 'object' && item.id);
             } else {
               tasks = [];
@@ -1131,7 +1278,53 @@
         }
 
         /**
-         * 날짜 차이 계산 및 D-Day 라벨 반환
+         * Date 객체를 Google 캘린더용 'YYYYMMDD' 문자열로 포맷
+         */
+        function formatGoogleDate(dateObj) {
+          const year = dateObj.getFullYear();
+          const month = String(dateObj.getMonth() + 1).padStart(2, '0');
+          const day = String(dateObj.getDate()).padStart(2, '0');
+          return `${year}${month}${day}`;
+        }
+
+        /**
+         * Google 캘린더 일정 작성 링크 생성 (action=TEMPLATE)
+         * - dates: YYYYMMDD/YYYYMMDD (종일 일정, 종료일은 마감일 다음 날 - 배타적 종료일)
+         * - 월말(e.g. 11/30->12/1) 및 연말(e.g. 12/31->다음해 1/1) 올바르게 계산
+         * - 한글, 공백, 특수문자 안전 인코딩 (URLSearchParams 사용)
+         */
+        function generateGoogleCalendarUrl(task) {
+          if (!task.dueDate) return null;
+
+          const parts = task.dueDate.split('-');
+          if (parts.length !== 3) return null;
+
+          const year = parseInt(parts[0], 10);
+          const month = parseInt(parts[1], 10); // 1 ~ 12
+          const day = parseInt(parts[2], 10);
+
+          // 시작일: 로컬 날짜 객체
+          const startDate = new Date(year, month - 1, day);
+          // 종료일: 마감일 다음 날 (배타적 종료일). JS Date는 월말/연말/윤년 자동 올림 계산
+          const endDate = new Date(year, month - 1, day + 1);
+
+          const startStr = formatGoogleDate(startDate);
+          const endStr = formatGoogleDate(endDate);
+
+          // details: 우선순위 및 출처 설명
+          const detailsContent = `우선순위: ${task.priority || '보통'}\n\n업무 플래너에서 추가한 일정입니다.`;
+
+          const params = new URLSearchParams();
+          params.set('action', 'TEMPLATE');
+          params.set('text', task.title);
+          params.set('dates', `${startStr}/${endStr}`);
+          params.set('details', detailsContent);
+
+          return `https://calendar.google.com/calendar/r/eventedit?${params.toString()}`;
+        }
+
+        /**
+         * 날짜 차이 계산 및 상태 라벨 반환
          */
         function calculateDateStatus(dueDateStr, isCompleted) {
           if (!dueDateStr) {
@@ -1145,9 +1338,8 @@
 
           const todayStr = getLocalTodayString();
 
-          // 날짜 비교 (YYYY-MM-DD 사전순 비교는 날짜 순서와 정확히 일치)
+          // 날짜 비교 (YYYY-MM-DD 사전순 비교)
           if (dueDateStr < todayStr) {
-            // 오늘 이전 날짜
             return {
               type: 'overdue',
               label: dueDateStr,
@@ -1155,15 +1347,13 @@
               isToday: false
             };
           } else if (dueDateStr === todayStr) {
-            // 오늘 날짜 (오늘은 기한 지남이 아님)
             return {
               type: 'today',
               label: dueDateStr,
               isOverdue: false,
-              isToday: !isCompleted // 완료된 업무는 오늘 마감 강조 제외 가능
+              isToday: !isCompleted
             };
           } else {
-            // 미래 날짜
             return {
               type: 'future',
               label: dueDateStr,
@@ -1214,7 +1404,6 @@
             if (currentFilter === 'pending') return !task.completed;
             if (currentFilter === 'completed') return task.completed;
             if (currentFilter === 'urgent') {
-              // 미완료 중 오늘 마감 또는 기한 지난 항목
               if (task.completed) return false;
               return task.dueDate && task.dueDate <= todayStr;
             }
@@ -1240,26 +1429,22 @@
 
           emptyState.style.display = 'none';
 
-          // 정렬 기준: 미완료 우선 -> 기한 지난 것 우선 -> 오늘 마감 우선 -> 마감일 빠른 순 -> 최신 등록 순
+          // 정렬: 미완료 우선 -> 기한 지난 것 -> 오늘 마감 -> 마감일 빠른 순 -> 최신순
           const sorted = [...filtered].sort((a, b) => {
-            // 완료 여부 기준 (미완료가 앞)
             if (a.completed !== b.completed) {
               return a.completed ? 1 : -1;
             }
-            // 둘 다 미완료일 때
             if (!a.completed) {
-              // 둘 다 마감일이 있는 경우
               if (a.dueDate && b.dueDate) {
                 if (a.dueDate !== b.dueDate) {
                   return a.dueDate.localeCompare(b.dueDate);
                 }
               } else if (a.dueDate && !b.dueDate) {
-                return -1; // 마감일 있는 항목 먼저
+                return -1;
               } else if (!a.dueDate && b.dueDate) {
                 return 1;
               }
 
-              // 우선순위 정렬 (높음 -> 보통 -> 낮음)
               const prioWeight = { '높음': 3, '보통': 2, '낮음': 1 };
               const prioA = prioWeight[a.priority] || 2;
               const prioB = prioWeight[b.priority] || 2;
@@ -1267,7 +1452,6 @@
                 return prioB - prioA;
               }
             }
-            // 생성일자 기준 내림차순
             return (b.createdAt || 0) - (a.createdAt || 0);
           });
 
@@ -1279,11 +1463,9 @@
             li.dataset.id = task.id;
 
             const dateInfo = calculateDateStatus(task.dueDate, task.completed);
-
-            // 우선순위 클래스 매핑
             const prioClass = task.priority === '높음' ? 'high' : (task.priority === '낮음' ? 'low' : 'medium');
 
-            // 상태 배지 생성 (미완료일 때만 기한 지남 / 오늘 마감 표시)
+            // 상태 배지
             let statusBadgeHtml = '';
             if (!task.completed) {
               if (dateInfo.isOverdue) {
@@ -1316,61 +1498,136 @@
               `;
             }
 
-            // 마감일 표시 텍스트
             const dueDateDisplay = task.dueDate ? task.dueDate : '마감일 없음';
 
-            // HTML 구조
-            li.innerHTML = `
-              <div class="checkbox-wrapper">
-                <input
-                  type="checkbox"
-                  class="todo-checkbox"
-                  ${task.completed ? 'checked' : ''}
-                  aria-label="${escapeHtml(task.title)} 완료 체크"
-                />
-                <svg class="checkbox-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
-                  <polyline points="20 6 9 17 4 12"></polyline>
-                </svg>
-              </div>
+            // Google 캘린더 URL 및 섹션 생성
+            const gcalUrl = generateGoogleCalendarUrl(task);
+            let gcalHtml = '';
 
-              <div class="todo-content">
-                <div class="todo-title">${escapeHtml(task.title)}</div>
-                <div class="todo-meta">
-                  <!-- 우선순위 (색상과 글자로 함께 표시) -->
-                  <span class="badge-priority ${prioClass}">
-                    <span class="priority-dot ${prioClass}"></span>
-                    <span>${escapeHtml(task.priority)}</span>
-                  </span>
-
-                  <!-- 마감일 (없으면 '마감일 없음' 표시) -->
-                  <span class="badge-due-date">
-                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                      <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
-                      <line x1="16" y1="2" x2="16" y2="6"></line>
-                      <line x1="8" y1="2" x2="8" y2="6"></line>
-                      <line x1="3" y1="10" x2="21" y2="10"></line>
-                    </svg>
-                    <span>${escapeHtml(dueDateDisplay)}</span>
-                  </span>
-
-                  <!-- 상태 배지 (기한 지남 / 오늘 마감) -->
-                  ${statusBadgeHtml}
+            if (task.dueDate && gcalUrl) {
+              // 마감일이 있는 경우: 활성화된 새 탭 링크 (rel="noopener noreferrer" 적용)
+              gcalHtml = `
+                <div class="gcal-section">
+                  <div class="gcal-btn-row">
+                    <a
+                      href="${escapeHtml(gcalUrl)}"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      class="btn-gcal active"
+                      title="Google 캘린더 일정 작성 페이지를 새 탭으로 엽니다"
+                    >
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                        <line x1="16" y1="2" x2="16" y2="6"></line>
+                        <line x1="8" y1="2" x2="8" y2="6"></line>
+                        <line x1="3" y1="10" x2="21" y2="10"></line>
+                        <line x1="12" y1="14" x2="12" y2="18"></line>
+                        <line x1="10" y1="16" x2="14" y2="16"></line>
+                      </svg>
+                      <span>Google 캘린더에 추가</span>
+                      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path>
+                        <polyline points="15 3 21 3 21 9"></polyline>
+                        <line x1="10" y1="14" x2="21" y2="3"></line>
+                      </svg>
+                    </a>
+                  </div>
+                  <div class="gcal-notice-text">
+                    <span class="gcal-transfer-info">&bull; 업무명과 우선순위(${escapeHtml(task.priority)})가 Google 캘린더로 전달됩니다.</span>
+                    <span class="gcal-sync-warning">&bull; Google 캘린더에서 확인 후 저장하세요. 이후 변경은 자동 동기화되지 않으며, 중복 저장 여부는 자동으로 판단할 수 없습니다.</span>
+                  </div>
                 </div>
+              `;
+            } else {
+              // 마감일이 없는 경우: 비활성화 버튼 및 '마감일을 먼저 설정해 주세요' 안내
+              gcalHtml = `
+                <div class="gcal-section">
+                  <div class="gcal-btn-row">
+                    <button
+                      type="button"
+                      class="btn-gcal disabled"
+                      disabled
+                      title="마감일을 먼저 설정해 주세요"
+                      aria-disabled="true"
+                    >
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                        <line x1="16" y1="2" x2="16" y2="6"></line>
+                        <line x1="8" y1="2" x2="8" y2="6"></line>
+                        <line x1="3" y1="10" x2="21" y2="10"></line>
+                      </svg>
+                      <span>Google 캘린더에 추가</span>
+                    </button>
+                    <span class="gcal-btn-notice">
+                      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="10"></circle>
+                        <line x1="12" y1="8" x2="12" y2="12"></line>
+                        <line x1="12" y1="16" x2="12.01" y2="16"></line>
+                      </svg>
+                      마감일을 먼저 설정해 주세요
+                    </span>
+                  </div>
+                </div>
+              `;
+            }
+
+            // HTML 구조 조립
+            li.innerHTML = `
+              <div class="todo-main-row">
+                <div class="checkbox-wrapper">
+                  <input
+                    type="checkbox"
+                    class="todo-checkbox"
+                    ${task.completed ? 'checked' : ''}
+                    aria-label="${escapeHtml(task.title)} 완료 체크"
+                  />
+                  <svg class="checkbox-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="20 6 9 17 4 12"></polyline>
+                  </svg>
+                </div>
+
+                <div class="todo-content">
+                  <div class="todo-title">${escapeHtml(task.title)}</div>
+                  <div class="todo-meta">
+                    <!-- 우선순위 -->
+                    <span class="badge-priority ${prioClass}">
+                      <span class="priority-dot ${prioClass}"></span>
+                      <span>${escapeHtml(task.priority)}</span>
+                    </span>
+
+                    <!-- 마감일 -->
+                    <span class="badge-due-date">
+                      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                        <line x1="16" y1="2" x2="16" y2="6"></line>
+                        <line x1="8" y1="2" x2="8" y2="6"></line>
+                        <line x1="3" y1="10" x2="21" y2="10"></line>
+                      </svg>
+                      <span>${escapeHtml(dueDateDisplay)}</span>
+                    </span>
+
+                    <!-- 상태 배지 -->
+                    ${statusBadgeHtml}
+                  </div>
+                </div>
+
+                <button
+                  type="button"
+                  class="btn-delete"
+                  title="이 업무 삭제"
+                  aria-label="${escapeHtml(task.title)} 업무 삭제"
+                >
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="3 6 5 6 21 6"></polyline>
+                    <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                    <line x1="10" y1="11" x2="10" y2="17"></line>
+                    <line x1="14" y1="11" x2="14" y2="17"></line>
+                  </svg>
+                </button>
               </div>
 
-              <button
-                type="button"
-                class="btn-delete"
-                title="이 업무 삭제"
-                aria-label="${escapeHtml(task.title)} 업무 삭제"
-              >
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                  <polyline points="3 6 5 6 21 6"></polyline>
-                  <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
-                  <line x1="10" y1="11" x2="10" y2="17"></line>
-                  <line x1="14" y1="11" x2="14" y2="17"></line>
-                </svg>
-              </button>
+              <!-- Google 캘린더 연동 섹션 -->
+              ${gcalHtml}
             `;
 
             // 체크박스 토글 이벤트
@@ -1425,11 +1682,11 @@
           taskTitleInput.classList.remove('has-error');
           titleError.classList.remove('visible');
 
-          // 우선순위 값 가져오기 (선택된 라디오, 기본값 '보통')
+          // 우선순위 값 가져오기 (기본값 '보통')
           const selectedPriorityEl = document.querySelector('input[name="priority"]:checked');
           const priority = selectedPriorityEl ? selectedPriorityEl.value : '보통';
 
-          // 마감일 값 (비어있으면 빈 문자열 '')
+          // 마감일 값
           const dueDate = taskDueDateInput.value ? taskDueDateInput.value.trim() : '';
 
           // 새 업무 객체 생성 (고유 ID 부여)
@@ -1450,7 +1707,6 @@
             // 폼 입력값 초기화
             taskTitleInput.value = '';
             taskDueDateInput.value = '';
-            // 우선순위 기본값 '보통'으로 재설정
             const defaultPriorityRadio = document.querySelector('input[name="priority"][value="보통"]');
             if (defaultPriorityRadio) defaultPriorityRadio.checked = true;
 
@@ -1513,7 +1769,7 @@
             });
           });
 
-          // 자정이 넘어가거나 날짜 변경 시 갱신을 위한 주기적 체크 (1분마다)
+          // 자정이 넘어가거나 날짜 변경 시 갱신 (1분마다)
           setInterval(() => {
             updateTodayHeader();
             renderTasks();
